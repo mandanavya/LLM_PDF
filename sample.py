@@ -75,12 +75,9 @@ for i, message in enumerate(st.session_state.messages):
             st.session_state.selected_message_index = i
 
 # Uploaded Documents Section
-st.sidebar.subheader("📄 Uploaded Documents")
 if "uploaded_docs" not in st.session_state:
     st.session_state.uploaded_docs = set()
 
-for doc in st.session_state.uploaded_docs:
-    st.sidebar.markdown(f"- {doc}")
 
 # File Upload Section
 uploaded_files = st.file_uploader("Upload PDF files", type=["pdf"], accept_multiple_files=True)
@@ -107,7 +104,12 @@ if uploaded_files:
         progress_bar.progress((idx + 1) / total_files)
 
     st.success(f"{len(uploaded_files)} PDFs uploaded, saved locally, and processed successfully!")
-    st.experimental_rerun()  # Refresh the page to update the sidebar
+    st.session_state.upload_complete = True  # Set upload complete flag
+
+# Check if upload is complete and rerun the app once
+if "upload_complete" in st.session_state and st.session_state.upload_complete:
+    st.session_state.upload_complete = False  # Reset the flag
+  
 
 # Chat Interface
 st.markdown("## 💬 Ask a Question")
@@ -132,7 +134,7 @@ if prompt := st.chat_input("Type your question here..."):
     model = genai.GenerativeModel("gemini-1.5-flash")
 
     if results:
-        relevant_text = "\n.join(results)
+        relevant_text = "\n.join(results)"
         truncated_relevant_text = truncate_context(relevant_text)
 
         ai_prompt = f"""
